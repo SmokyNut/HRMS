@@ -4,14 +4,21 @@
     <h1 class="text-3xl font-bold text-gray-800 mb-6">CSV アップロード</h1>
 
     <!-- ファイル選択エリア -->
-    <label class="w-80 flex flex-col items-center px-4 py-6 bg-white rounded-lg shadow-md tracking-wide uppercase border border-blue-500 cursor-pointer hover:bg-blue-500 hover:text-white transition">
-        <svg class="w-8 h-8 mb-3 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-        <path d="M16.88 8.88l-5.66-5.66A2 2 0 009.17 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4.17a2 2 0 00-.59-1.42zM14 15H6a1 1 0 01-1-1V6a1 1 0 011-1h3v4a1 1 0 001 1h4v4a1 1 0 01-1 1zm-3-5V5.41L14.59 10H11z" />
-        </svg>
-        <span v-if="!selectFlag" class="mt-2 text-base leading-normal">ファイルを選択</span>
-        <span v-else class="mt-2 text-base leading-normal text-gray-900">{{ selectedFileName }}</span>
-        <input type="file" class="hidden" @change="handleFileUpload" />
-    </label>
+    <div 
+      class="w-80 flex flex-col items-center px-4 py-6 bg-white rounded-lg shadow-md border-2 border-dashed border-blue-500 cursor-pointer hover:bg-blue-50 transition"
+      @dragover.prevent
+      @dragenter.prevent
+      @drop="handleDrop"
+    >
+        <input type="file" class="hidden" ref="fileInput" @change="handleFileUpload" />
+        <label @click="triggerFileInput" class="flex flex-col items-center">
+            <svg class="w-8 h-8 mb-3 fill-current text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M16.88 8.88l-5.66-5.66A2 2 0 009.17 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4.17a2 2 0 00-.59-1.42zM14 15H6a1 1 0 01-1-1V6a1 1 0 011-1h3v4a1 1 0 001 1h4v4a1 1 0 01-1 1zm-3-5V5.41L14.59 10H11z" />
+            </svg>
+            <span v-if="!selectFlag" class="mt-2 text-base leading-normal text-center">ファイルを選択<br>または<br>ドラッグ&ドロップ</span>
+            <span v-else class="mt-2 text-base leading-normal text-gray-900">{{ selectedFileName }}</span>
+        </label>
+    </div>
 
     <!-- アップロードボタン -->
     <button @click="uploadCsv" class="mt-4 px-6 py-3 bg-blue-500 text-white font-bold rounded-lg shadow-md hover:bg-blue-600 transition">
@@ -78,12 +85,23 @@ export default {
     methods: {
         handleFileUpload(event) {
             const file = event.target.files[0];
-            console.log(file)
             if (file) {
                 this.csvFile = file;
                 this.selectFlag = true;
                 this.selectedFileName = file.name;
             }
+        },
+        handleDrop(event) {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                this.csvFile = file;
+                this.selectFlag = true;
+                this.selectedFileName = file.name;
+            }
+        },
+        triggerFileInput() {
+            this.$refs.fileInput.click();
         },
         async uploadCsv() {
             if (!this.csvFile) {
