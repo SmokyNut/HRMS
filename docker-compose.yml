@@ -1,0 +1,37 @@
+name: "HRMS"
+
+services:
+  nginx:
+    container_name: nginx_hrms
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./laravel:/var/www/html/laravel
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  php:
+    container_name: php_hrms
+    ports:
+      - 5173:5173
+      - 8000:8000
+    build: 
+      context: .
+      dockerfile: ./docker/php/dockerfile
+    volumes:
+      - ./laravel:/var/www/html/laravel
+      - ./docker/php/www.conf:/etc/php-fpm.d/www.conf
+    depends_on:
+      - mysql
+  
+  mysql:
+    container_name: mysql_hrms
+    image: mysql:latest
+    environment:
+      - MYSQL_DATABASE=staff
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=root
